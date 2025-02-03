@@ -10,11 +10,11 @@ class CreateSpendingsTable extends Migration
     {
         Schema::create('spendings', function (Blueprint $table) {
             $table->id(); // 自動採番の主キー
-            $table->unsignedBigInteger('user_id'); // ユーザーID（外部キー）
-            $table->unsignedBigInteger('type_id'); // カテゴリーID（外部キー）
-            $table->bigInteger('amount'); // 金額（整数）
-            $table->date('date'); // 日付
-            $table->text('comment')->nullable(); // メモ（NULL許可）
+            $table->unsignedBigInteger('user_id')->comment('ユーザーID'); // ユーザーID（外部キー）
+            $table->unsignedBigInteger('type_id')->comment('1: 支出, 2: 収入'); // カテゴリタイプ（外部キー）
+            $table->bigInteger('amount')->comment('金額');
+            $table->date('date')->comment('支出日');
+            $table->text('comment')->nullable()->comment('メモ'); // メモ（NULL許可）
             $table->timestamps(); // created_at, updated_at 自動追加
             $table->softDeletes(); // LaravelのSoftDeletesを追加
 
@@ -29,18 +29,3 @@ class CreateSpendingsTable extends Migration
         Schema::dropIfExists('spendings');
     }
 }
-// このマイグレーションファイルでは、spendingsテーブルを作成するためのupメソッドと、テーブルを削除するためのdownメソッドが定義されています。
-// upメソッドでは、Blueprintクラスのメソッドを使ってテーブルのカラムを定義しています。
-// ここで、idメソッドは自動採番の主キーを定義するメソッドです。
-// unsignedBigIntegerメソッドは、符号なしのBIGINT型のカラムを定義するメソッドです。
-// bigIntegerメソッドは、BIGINT型のカラムを定義するメソッドです。
-// dateメソッドは、DATE型のカラムを定義するメソッドです。
-// textメソッドは、TEXT型のカラムを定義するメソッドです。
-// nullableメソッドは、カラムにNULLを許可するメソッドです。
-// timestampsメソッドは、created_atとupdated_atのカラムを自動追加するメソッドです。
-// softDeletesメソッドは、deleted_atのカラムを追加するメソッドです。
-// また、外部キー制約を設定するために、foreignメソッドを使ってusersテーブルとtypesテーブルのidカラムに対して外部キー制約を設定しています。
-// onDeleteメソッドは、親テーブルのレコードが削除されたときの挙動を指定するメソッドです。
-// cascadeを指定することで、親テーブルのレコードが削除されたときに、子テーブルのレコードも削除されるようになります。
-// downメソッドでは、dropIfExistsメソッドを使ってspendingsテーブルを削除しています。
-// このマイグレーションファイルを実行することで、spendingsテーブルが作成されます。

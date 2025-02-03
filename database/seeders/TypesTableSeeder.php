@@ -14,8 +14,8 @@ class TypesTableSeeder extends Seeder
     public function run(): void
     {
         DB::table('types')->insert([
-            ['name' => '収入','category_type' => 1, 'created_at' => now(), 'updated_at' => now()],
             ['name' => '支出','category_type' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['name' => '収入','category_type' => 1, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

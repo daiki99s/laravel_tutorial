@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/bootstrap.js'])
     <title>ホーム</title>
     <!-- Heroicons CDN -->
     <script src="https://cdn.jsdelivr.net/npm/heroicons@1.0.6/umd/heroicons.min.js"></script>
@@ -57,7 +58,7 @@
                 </tbody>
             </table>
             <div class="flex justify-center mt-4">
-                <button class="bg-green-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200" onclick="openModal('income')">＋</button>
+                <button id="incBtn" class="bg-green-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200" onclick="openModal('income')">＋</button>
             </div>
         </div>
 
@@ -91,7 +92,7 @@
                 </tbody>
             </table>
             <div class="flex justify-center mt-4">
-                <button class="bg-red-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200" onclick="openModal('spending')">＋</button>
+                <button id="spnBtn" class="bg-red-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200" onclick="openModal('spending')">＋</button>
             </div>
         </div>
 
@@ -103,8 +104,34 @@
             <h3 id="modal-title" class="text-xl mb-4 flex place-content-center">フォームタイトル</h3>
 
             <!-- フォーム -->
-            <form id="modal-form" action="#" method="POST">
+            <form id="modal-form" action="" method="POST">
                 @csrf
+<input type="hidden" name="type_id" id="type_id" value="">
+<script>
+    const incomeBtn = document.getElementById('incBtn');
+    const spendingBtn = document.getElementById('spnBtn');
+    spendingBtn.addEventListener('click', () => {
+        document.getElementById('type_id').value = 1;
+    });
+    incomeBtn.addEventListener('click', () => {
+        document.getElementById('type_id').value = 2;
+    });
+
+</script>
+
+<!-- <select name="type_id" id="type_id" required class="w-full p-2 border border-gray-300 rounded-lg">
+    <option value="" disabled selected>カテゴリを選択</option>
+    @foreach ($types as $type)
+        <option value="{{ $type->id }}">{{ $type->name }}</option>
+    @endforeach
+</select> -->
+<select name="user_id" id="user_id" required class="w-full p-2 border border-gray-300 rounded-lg">
+    <option value="" disabled selected>カテゴリを選択</option>
+    @foreach ($users as $user)
+        <option value="{{ $user->id }}">{{ $user->name }}</option>
+    @endforeach
+</select>
+
                 <div class="mb-4">
                     <label for="date" class="block text-gray-700">日付</label>
                     <input type="date" required name="date" id="date" class="w-full p-2 border border-gray-300 rounded-lg">
@@ -126,6 +153,34 @@
     </div>
 
     <script>
+
+function submitForm(event) {
+    event.preventDefault(); // 通常のフォーム送信を防ぐ
+
+    const form = document.getElementById('modal-form');
+    const formData = new FormData(form);
+
+    // axiosでPOSTリクエストを送信
+    axios.post(form.action, formData, {
+    headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    }
+})
+        .then(response => {
+            if (response.data.success) {
+                alert(response.data.message);  // 成功メッセージを表示
+                location.reload();  // 成功後にページをリロードしてデータを反映
+            } else {
+                alert('エラー: ' + (response.data.message || '入力を確認してください'));  // エラーメッセージを表示
+            }
+        })
+        .catch(error => {
+            console.error('送信エラー:', error);
+            alert('送信に失敗しました');  // 送信エラーが発生した場合のメッセージ
+        });
+}
+
+
         function openModal(type) {
             const modal = document.getElementById('modal');
             modal.classList.remove('hidden');
@@ -136,6 +191,7 @@
             formCover.classList.toggle('bg-red-200', type !== 'income');
             document.getElementById('modal-form').action = type === 'income' ? '/incomes' : '/spendings'; // 適切なURLに設定
         }
+
 
         function closeModal(event) {
             const modal = document.getElementById('modal');
