@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('types', function (Blueprint $table) {
             $table->id(); // 自動採番の主キー
-            $table->string('name'); // カテゴリ名（例：食費、光熱費、給与など）
-            $table->boolean('category_type'); // 0: 支出, 1: 収入
+            $table->string('name')->comment('カテゴリ名');
+            $table->unsignedTinyInteger('category_type')->comment('0: 支出, 1: 収入');
             $table->timestamps(); // created_at, updated_at
         });
     }

@@ -14,8 +14,8 @@ class SpendingsTableSeeder extends Seeder
     public function run(): void
     {
         DB::table('spendings')->insert([
-            ['user_id' => 1, 'type_id' => 2, 'amount' => 3000, 'date' => '2024-02-01', 'comment' => 'ランチ', 'created_at' => now(), 'updated_at' => now()],
-            ['user_id' => 1, 'type_id' => 2, 'amount' => 15000, 'date' => '2024-02-02', 'comment' => '家賃', 'created_at' => now(), 'updated_at' => now()],
+            ['user_id' => 1, 'type_id' => 1, 'amount' => 3000, 'date' => '2024-02-01', 'comment' => 'ランチ', 'created_at' => now(), 'updated_at' => now()],
+            ['user_id' => 1, 'type_id' => 1, 'amount' => 15000, 'date' => '2024-02-02', 'comment' => '家賃', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }
