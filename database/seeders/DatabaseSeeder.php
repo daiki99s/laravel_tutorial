@@ -8,7 +8,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 // use すると、モデルイベントが発火しなくなる。
 // 例えば、IncomesTableSeeder で Income::create([...]) みたいに Eloquent を使って
 // データを追加するときに、Income モデルの boot メソッド内の creating() や
-// updating() イベントが発生しなくなるんだ。
+// updating() イベントが発生しなくなる。
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
