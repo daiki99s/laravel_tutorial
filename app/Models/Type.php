@@ -22,3 +22,8 @@ class Type extends Model
     }
 }
 
+// 構成
+// DB: types
+// Model: Types
+// Controller: HomeController(レスポンスの処理), SpendingController(リクエストの取得), IncomeController(リクエストの取得)
+

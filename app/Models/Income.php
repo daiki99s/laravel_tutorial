@@ -22,4 +22,10 @@ class Income extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Category モデルとのリレーション (Income は Category に属する)
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
