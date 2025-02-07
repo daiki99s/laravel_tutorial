@@ -9,7 +9,7 @@ class Income extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'type_id', 'amount', 'date', 'comment'];
+    protected $fillable = ['user_id', 'type_id', 'category_id', 'amount', 'date', 'comment'];
 
     // Type モデルとのリレーション (Income は Type に属する)
     public function type()

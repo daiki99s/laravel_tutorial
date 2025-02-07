@@ -11,7 +11,7 @@ class Spending extends Model
 
     // どのカラムが書き換え可能かを指定
     protected $fillable = [
-        'user_id', 'type_id', 'amount', 'date', 'comment'
+        'user_id', 'type_id', 'category_id', 'amount', 'date', 'comment'
     ];
 
     // Type とのリレーション（Spending は 1つの Type に属する）
@@ -25,5 +25,10 @@ class Spending extends Model
     {
         return $this->belongsTo(User::class);
     }
-}
 
+    // Category とのリレーション（Spending は 1つの Category に属する）
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+}

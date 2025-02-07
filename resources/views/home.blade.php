@@ -109,9 +109,14 @@
 <input type="hidden" name="type_id" id="type_id" value="">
 @foreach ($users as $user)
 <input type="hidden" name="user_id" id="user_id" value="{{ $user->id }}">
+@endforeach
 
+<!-- <select name="type_id" id="type_id" required class="w-full p-2 border border-gray-300 rounded-lg">
+    <option value="" disabled selected>カテゴリを選択</option>
+    @foreach ($types as $type)
+        <option value="{{ $type->id }}">{{ $type->name }}</option>
     @endforeach
-
+</select> -->
 <script>
     const incomeBtn = document.getElementById('incBtn');
     const spendingBtn = document.getElementById('spnBtn');
@@ -122,15 +127,6 @@
         document.getElementById('type_id').value = 2;
     });
 </script>
-
-<select name="type_id" id="type_id" required class="w-full p-2 border border-gray-300 rounded-lg">
-    <option value="" disabled selected>カテゴリを選択</option>
-    @foreach ($types as $type)
-        <option value="{{ $type->id }}">{{ $type->name }}</option>
-    @endforeach
-</select>
-
-
                 <div class="mb-4">
                     <label for="date" class="block text-gray-700">日付</label>
                     <input type="date" required name="date" id="date" class="w-full p-2 border border-gray-300 rounded-lg">
