@@ -26,9 +26,9 @@ class Spending extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Category とのリレーション（Spending は 1つの Category に属する）
+    // SpendingCategory とのリレーション（Spending は 1つの SpendingCategory に属する）
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(SpendingCategory::class, 'category_id');
     }
 }
