@@ -7,6 +7,6 @@
 </head>
 <body>
     <h1>Hello, ready to code</h1>
-    <p></p>
+    <p>コードのテストはここでやるでも良い</p>
 </body>
 </html>

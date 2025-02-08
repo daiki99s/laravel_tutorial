@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Income;
 use App\Models\Spending;
-use App\Models\Type; // ここでTypeモデルを追加
+use App\Models\Type;
 use App\Models\User;
+use App\Models\IncomeCategory;
+use App\Models\SpendingCategory;
+
 class HomeController extends Controller
 {
     public function index()
@@ -14,10 +17,15 @@ class HomeController extends Controller
         // 収入、支出、タイプ、ユーザーを取得
         $incomes = Income::with('type')->get();
         $spendings = Spending::with('type')->get();
-        // dd($incomes);テスト：値が取れているか確認　オブジェクトで返される（？）
-        // dd($spendings);テスト：値が取れているか確認 オブジェクトで返される（？）
-        $types = Type::all(); // typesテーブルからタイプデータを取得
-        $users = User::all(); // usersテーブルからユーザーデータを取得
-        return view('home', compact('incomes', 'spendings', 'types', 'users')); // Blade にデータを渡す
+        $types = Type::all();
+        $users = User::all();
+
+        // それぞれのカテゴリを別の変数に取得
+        $incomeCategories = IncomeCategory::all();
+        $spendingCategories = SpendingCategory::all();
+
+        // Blade に渡す
+        return view('home', compact('incomes', 'spendings', 'types', 'users', 'incomeCategories', 'spendingCategories'));
     }
+
 }
