@@ -9,20 +9,27 @@ use App\Models\IncomeCategory;
 
 class IncomeController extends Controller
 {
+        /**
+     * 一覧表示
+     */
     public function index()
     {
         // 「type」リレーションと「category」リレーションをまとめてロード
         $incomes = Income::with(['type', 'category'])->get();
         $types = Type::all();
         $users = User::all();
+
+        // すべての収入カテゴリを取得（カテゴリのプルダウンなどに使う想定）
         $categories = IncomeCategory::all();
 
         return view('incomes.index', compact('incomes', 'types', 'users', 'categories'));
     }
-
+    /**
+     * 新規登録 (store)
+     */
     public function store(Request $request)
     {
-        // バリデーションルールを追加
+        // バリデーションルール
         $validated = $request->validate([
             'date' => 'required|date', // 日付は必須かつ正しい日付形式
             'amount' => 'required|numeric|min:0', // 金額は必須かつ0以上の数値
@@ -32,7 +39,7 @@ class IncomeController extends Controller
             'category_id' => 'required|exists:income_categories,id', // category_idはincome_categoriesテーブルに存在するIDであること
         ]);
 
-        // バリデーションを通過したデータで新しいIncomeを作成
+        // レコード作成
         $income = Income::create([
             'date' => $validated['date'],
             'amount' => $validated['amount'],
@@ -42,7 +49,33 @@ class IncomeController extends Controller
             'category_id' => $validated['category_id'],
         ]);
 
-        return redirect()->route('home')->with('message', '収入を登録しました');
+        return response()->json([
+            'success' => true,
+            'message' => '収入を登録しました'
+        ]);
     }
+
+    /**
+     * 更新 (update)
+     */
+    public function update(Request $request, $id)
+{
+  $income = Income::findOrFail($id);
+
+  $validated = $request->validate([
+      'date' => 'required|date',
+      'amount' => 'required|numeric|min:0',
+      'comment' => 'nullable|string',
+      'type_id' => 'required|exists:types,id',
+      'user_id' => 'required|exists:users,id',
+      'category_id' => 'required|exists:income_categories,id',
+  ]); // バリデーション
+
+  $income->update($validated);
+  return response()->json([
+    'success' => true,
+    'message' => '収入を更新しました'
+]);}
+
 
 }
