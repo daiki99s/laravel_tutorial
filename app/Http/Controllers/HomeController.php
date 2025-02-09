@@ -15,8 +15,8 @@ class HomeController extends Controller
     public function index()
     {
         // 収入、支出、タイプ、ユーザーを取得
-        $incomes = Income::with('type')->get();
-        $spendings = Spending::with('type')->get();
+        $incomes = Income::with(['type','category'])->get();
+        $spendings = Spending::with(['type','category'])->get();
         $types = Type::all();
         $users = User::all();
 
