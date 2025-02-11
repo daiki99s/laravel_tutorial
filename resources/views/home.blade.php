@@ -7,7 +7,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Viteでビルドする対象ファイル (app.css, app.js など) -->
-    <!-- home.js は app.js 内で import する、または下記のように個別指定してもOK -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <title>ホーム</title>
     <style>
@@ -45,7 +44,6 @@
             <div class="flex flex-col items-center mb-4">
                 <div class="flex items-center">
                     <h2 class="text-lg font-semibold">収入一覧</h2>
-                    <!-- 新規追加(収入)ボタン (onclick廃止) -->
                     <button id="incBtn"
                         class="bg-green-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200 ml-4"
                     >
@@ -93,7 +91,6 @@
             <div class="flex flex-col items-center mb-4">
                 <div class="flex items-center">
                     <h2 class="text-lg font-semibold">支出一覧</h2>
-                    <!-- 新規追加(支出)ボタン (onclick廃止) -->
                     <button id="spnBtn"
                         class="bg-red-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200 ml-4"
                     >
@@ -124,7 +121,6 @@
                             <td class="border px-4 py-2">{{ $spending->comment }}</td>
                             <td class="border px-4 py-2">{{ $spending->category->name ?? '-' }}</td>
                             <td class="border px-4 py-2">
-                                <!-- 編集ボタン (onclick廃止) -->
                                 <button class="edit-spending-btn bg-blue-500 text-white px-2 py-1 rounded">
                                     編集
                                 </button>
