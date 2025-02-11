@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- LaravelのCSRFトークン (JSで読み取るために必要) -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/bootstrap.js'])
+
+    <!-- Viteでビルドする対象ファイル (app.css, app.js など) -->
+    <!-- home.js は app.js 内で import する、または下記のように個別指定してもOK -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <title>ホーム</title>
     <style>
         .modal {
@@ -41,9 +45,8 @@
             <div class="flex flex-col items-center mb-4">
                 <div class="flex items-center">
                     <h2 class="text-lg font-semibold">収入一覧</h2>
-                    <!-- 新規追加(収入)ボタン -->
-                    <button
-                        id="incBtn"
+                    <!-- 新規追加(収入)ボタン (onclick廃止) -->
+                    <button id="incBtn"
                         class="bg-green-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200 ml-4"
                     >
                         ＋
@@ -63,18 +66,19 @@
                 </thead>
                 <tbody>
                     @foreach ($incomes as $income)
-                        <!-- data-income に JSON文字列として埋め込む -->
-                        <tr data-income='@json($income)'>
+                        <!-- data属性にJSON文字列を埋め込む -->
+                        <tr
+                            class="income-row"
+                            data-id="{{ $income->id }}"
+                            data-json='@json($income)'
+                        >
                             <td class="border px-4 py-2">{{ $income->date }}</td>
                             <td class="border px-4 py-2">{{ $income->amount }}</td>
                             <td class="border px-4 py-2">{{ $income->comment }}</td>
                             <td class="border px-4 py-2">{{ $income->category->name ?? '-' }}</td>
                             <td class="border px-4 py-2">
-                                <!-- 編集ボタン -->
-                                <button
-                                    class="bg-blue-500 text-white px-2 py-1 rounded"
-                                    onclick="openEditModalIncome({{ $income->id }}, this.parentNode.parentNode.dataset.income)"
-                                >
+                                <!-- 編集ボタン (onclick廃止) -->
+                                <button class="edit-income-btn bg-blue-500 text-white px-2 py-1 rounded">
                                     編集
                                 </button>
                             </td>
@@ -89,9 +93,8 @@
             <div class="flex flex-col items-center mb-4">
                 <div class="flex items-center">
                     <h2 class="text-lg font-semibold">支出一覧</h2>
-                    <!-- 新規追加(支出)ボタン -->
-                    <button
-                        id="spnBtn"
+                    <!-- 新規追加(支出)ボタン (onclick廃止) -->
+                    <button id="spnBtn"
                         class="bg-red-500 text-white py-2 px-4 rounded-full h-12 w-12 flex items-center justify-center hover:scale-110 transition-transform duration-200 ml-4"
                     >
                         ＋
@@ -111,17 +114,18 @@
                 </thead>
                 <tbody>
                     @foreach ($spendings as $spending)
-                        <tr data-spending='@json($spending)'>
+                        <tr
+                            class="spending-row"
+                            data-id="{{ $spending->id }}"
+                            data-json='@json($spending)'
+                        >
                             <td class="border px-4 py-2">{{ $spending->date }}</td>
                             <td class="border px-4 py-2">{{ $spending->amount }}</td>
                             <td class="border px-4 py-2">{{ $spending->comment }}</td>
                             <td class="border px-4 py-2">{{ $spending->category->name ?? '-' }}</td>
                             <td class="border px-4 py-2">
-                                <!-- 編集ボタン (支出) -->
-                                <button
-                                    class="bg-blue-500 text-white px-2 py-1 rounded"
-                                    onclick="openEditModalSpending({{ $spending->id }}, this.parentNode.parentNode.dataset.spending)"
-                                >
+                                <!-- 編集ボタン (onclick廃止) -->
+                                <button class="edit-spending-btn bg-blue-500 text-white px-2 py-1 rounded">
                                     編集
                                 </button>
                             </td>
@@ -133,14 +137,13 @@
 
     </div>
 
-
     <!-- モーダル -->
-    <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center modal hidden" onclick="closeModal(event)">
-        <div id="formCover" class="opacity-95 p-8 rounded-lg shadow-lg w-3/5" onclick="event.stopPropagation()">
+    <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center modal hidden">
+        <div id="formCover" class="opacity-95 p-8 rounded-lg shadow-lg w-3/5">
             <h3 id="modal-title" class="text-xl mb-4 flex place-content-center">フォームタイトル</h3>
 
             <!-- フォーム -->
-            <form id="modal-form" action="" method="POST" onsubmit="submitForm(event)">
+            <form id="modal-form" action="" method="POST">
                 @csrf
                 <!-- _method (新規=POST, 編集=PUT) を切り替える -->
                 <input type="hidden" name="_method" value="POST" id="methodInput">
@@ -192,192 +195,14 @@
                         確定
                     </button>
                 </div>
-                <button type="button" onclick="closeModal()" class="mt-4 w-full text-center text-black-500">
+
+                <!-- モーダル閉じるボタン -->
+                <button type="button" id="closeModalBtn" class="mt-4 w-full text-center text-black-500">
                     閉じる
                 </button>
             </form>
         </div>
     </div>
-
-
-    <!-- スクリプト群 -->
-    <script>
-    // DOMロード後の初期設定
-    document.addEventListener('DOMContentLoaded', () => {
-        // 新規追加ボタン (収入)
-        const incomeBtn = document.getElementById('incBtn');
-        // 新規追加ボタン (支出)
-        const spendingBtn = document.getElementById('spnBtn');
-
-        // カテゴリselect
-        const incomeCategory = document.getElementById('incomeCategory');
-        const spendingCategory = document.getElementById('spendingCategory');
-
-        // type_id, methodInput
-        const typeInput = document.getElementById('type_id');
-        const methodInput = document.getElementById('methodInput');
-
-        // 初期はカテゴリ非表示
-        incomeCategory.style.display = 'none';
-        spendingCategory.style.display = 'none';
-        incomeCategory.disabled = true;
-        spendingCategory.disabled = true;
-
-        // 収入ボタンを押したときの処理
-        if (incomeBtn) {
-            incomeBtn.addEventListener('click', () => {
-                // 新規なので POST
-                methodInput.value = 'POST';
-                // 収入: type_id = 2
-                typeInput.value = 2;
-
-                // フォームの action を '/incomes' に設定
-                document.getElementById('modal-form').action = '/incomes';
-
-                // 収入カテゴリのみ表示
-                incomeCategory.style.display = 'block';
-                incomeCategory.disabled = false;
-                spendingCategory.style.display = 'none';
-                spendingCategory.disabled = true;
-
-                // モーダルを開く
-                openModal('income');
-            });
-        }
-
-        // 支出ボタン
-        if (spendingBtn) {
-            spendingBtn.addEventListener('click', () => {
-                methodInput.value = 'POST';
-                typeInput.value = 1;
-                document.getElementById('modal-form').action = '/spendings';
-
-                spendingCategory.style.display = 'block';
-                spendingCategory.disabled = false;
-                incomeCategory.style.display = 'none';
-                incomeCategory.disabled = true;
-
-                openModal('spending');
-            });
-        }
-    });
-
-    // 新規/編集兼用モーダルを開く
-    function openModal(type) {
-        const modal = document.getElementById('modal');
-        modal.classList.remove('hidden');
-        setTimeout(() => modal.classList.add('show'), 10);
-
-        // タイトル
-        document.getElementById('modal-title').textContent =
-            type === 'income' ? '収入を追加' : '支出を追加';
-
-        // 背景色
-        const formCover = document.getElementById('formCover');
-        formCover.classList.toggle('bg-green-200', type === 'income');
-        formCover.classList.toggle('bg-red-200', type === 'spending');
-    }
-
-    // モーダルを閉じる
-    function closeModal(event) {
-        const modal = document.getElementById('modal');
-        modal.classList.remove('show');
-        setTimeout(() => modal.classList.add('hidden'), 500);
-    }
-
-    // ---- 収入編集モーダル ----
-    function openEditModalIncome(incomeId, incomeDataJson) {
-        const modalForm   = document.getElementById('modal-form');
-        const methodInput = document.getElementById('methodInput');
-        const typeInput   = document.getElementById('type_id');
-        const incomeData  = JSON.parse(incomeDataJson);
-
-        // フォームactionを `/incomes/{id}` に
-        modalForm.action = `/incomes/${incomeId}`;
-        // _method=PUT (編集モード)
-        methodInput.value = 'PUT';
-        // 収入
-        typeInput.value = 2;
-
-        // 収入カテゴリのみ表示
-        const incomeCategory = document.getElementById('incomeCategory');
-        const spendingCategory = document.getElementById('spendingCategory');
-        incomeCategory.style.display = 'block';
-        incomeCategory.disabled = false;
-        spendingCategory.style.display = 'none';
-        spendingCategory.disabled = true;
-
-        // 既存データをフォームにセット
-        document.getElementById('date').value    = incomeData.date;
-        document.getElementById('amount').value  = incomeData.amount;
-        document.getElementById('comment').value = incomeData.comment ?? '';
-        if (incomeData.category_id) {
-            incomeCategory.value = incomeData.category_id;
-        }
-
-        openModal('income');
-    }
-
-    // ---- 支出編集モーダル ----
-    function openEditModalSpending(spendingId, spendingDataJson) {
-        const modalForm   = document.getElementById('modal-form');
-        const methodInput = document.getElementById('methodInput');
-        const typeInput   = document.getElementById('type_id');
-        const spendingData = JSON.parse(spendingDataJson);
-
-        // フォームactionを `/spendings/{id}` に
-        modalForm.action = `/spendings/${spendingId}`;
-        // _method=PUT (編集モード)
-        methodInput.value = 'PUT';
-        // 支出
-        typeInput.value = 1;
-
-        // 支出カテゴリのみ表示
-        const incomeCategory = document.getElementById('incomeCategory');
-        const spendingCategory = document.getElementById('spendingCategory');
-        incomeCategory.style.display = 'none';
-        incomeCategory.disabled = true;
-        spendingCategory.style.display = 'block';
-        spendingCategory.disabled = false;
-
-        // 既存データをフォームにセット
-        document.getElementById('date').value    = spendingData.date;
-        document.getElementById('amount').value  = spendingData.amount;
-        document.getElementById('comment').value = spendingData.comment ?? '';
-        if (spendingData.category_id) {
-            spendingCategory.value = spendingData.category_id;
-        }
-
-        openModal('spending');
-    }
-
-
-    // 送信をaxiosで行う
-    function submitForm(event) {
-        event.preventDefault();
-
-        const form     = document.getElementById('modal-form');
-        const formData = new FormData(form);
-
-        axios.post(form.action, formData, {
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => {
-            if (response.data.success) {
-                alert(response.data.message);
-                location.reload();
-            } else {
-                alert('エラー: ' + (response.data.message || '入力を確認してください'));
-            }
-        })
-        .catch(error => {
-            console.error('送信エラー:', error);
-            alert('送信に失敗しました');
-        });
-    }
-    </script>
 
 </body>
 </html>
