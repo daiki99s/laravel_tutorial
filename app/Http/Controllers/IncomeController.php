@@ -9,7 +9,7 @@ use App\Models\IncomeCategory;
 
 class IncomeController extends Controller
 {
-        /**
+    /**
      * 一覧表示
      */
     public function index()
@@ -24,6 +24,7 @@ class IncomeController extends Controller
 
         return view('incomes.index', compact('incomes', 'types', 'users', 'categories'));
     }
+
     /**
      * 新規登録 (store)
      */
@@ -59,23 +60,36 @@ class IncomeController extends Controller
      * 更新 (update)
      */
     public function update(Request $request, $id)
-{
-  $income = Income::findOrFail($id);
+    {
+        $income = Income::findOrFail($id);
 
-  $validated = $request->validate([
-      'date' => 'required|date',
-      'amount' => 'required|numeric|min:0',
-      'comment' => 'nullable|string',
-      'type_id' => 'required|exists:types,id',
-      'user_id' => 'required|exists:users,id',
-      'category_id' => 'required|exists:income_categories,id',
-  ]); // バリデーション
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'amount' => 'required|numeric|min:0',
+            'comment' => 'nullable|string',
+            'type_id' => 'required|exists:types,id',
+            'user_id' => 'required|exists:users,id',
+            'category_id' => 'required|exists:income_categories,id',
+        ]); // バリデーション
 
-  $income->update($validated);
-  return response()->json([
-    'success' => true,
-    'message' => '収入を更新しました'
-]);}
+        $income->update($validated);
+        return response()->json([
+            'success' => true,
+            'message' => '収入を更新しました'
+        ]);
+    }
 
+    /**
+     * 削除 (destroy)
+     */
+    public function destroy($id)
+    {
+        $income = Income::findOrFail($id);
+        $income->delete();
 
+        return response()->json([
+            'success' => true,
+            'message' => '収入を削除しました（論理削除）'
+        ]);
+    }
 }

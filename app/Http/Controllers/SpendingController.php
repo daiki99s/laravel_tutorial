@@ -82,4 +82,18 @@ class SpendingController extends Controller
         ]);
     }
 
+    /**
+     * 削除 (destroy)
+     */
+    public function destroy($id)
+    {
+        $spending = Spending::findOrFail($id);
+        $spending->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => '支出を削除しました（論理削除）'
+        ]);
+    }
+
 }

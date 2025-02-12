@@ -23,19 +23,6 @@
 
     <h1 class="text-center text-2xl font-bold my-4">ホーム</h1>
 
-    {{-- フラッシュメッセージ表示 --}}
-    @if(session('message'))
-        <div class="bg-green-200 text-green-800 p-2 mb-4">
-            {{ session('message') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="bg-red-200 text-red-800 p-2 mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <!-- メインコンテナ -->
     <div class="flex justify-between space-x-8 p-8">
 
@@ -58,7 +45,7 @@
                         <th class="border px-4 py-2">日付</th>
                         <th class="border px-4 py-2">金額</th>
                         <th class="border px-4 py-2">コメント</th>
-                        <th class="border px-4 py-2">Incomeカテゴリ</th>
+                        <th class="border px-4 py-2">分類</th>
                         <th class="border px-4 py-2">操作</th>
                     </tr>
                 </thead>
@@ -75,9 +62,11 @@
                             <td class="border px-4 py-2">{{ $income->comment }}</td>
                             <td class="border px-4 py-2">{{ $income->category->name ?? '-' }}</td>
                             <td class="border px-4 py-2">
-                                <!-- 編集ボタン (onclick廃止) -->
                                 <button class="edit-income-btn bg-blue-500 text-white px-2 py-1 rounded">
                                     編集
+                                </button>
+                                <button class="delete-income-btn bg-blue-500 text-white px-2 py-1 rounded">
+                                    削除
                                 </button>
                             </td>
                         </tr>
@@ -105,7 +94,7 @@
                         <th class="border px-4 py-2">日付</th>
                         <th class="border px-4 py-2">金額</th>
                         <th class="border px-4 py-2">コメント</th>
-                        <th class="border px-4 py-2">Spendingカテゴリ</th>
+                        <th class="border px-4 py-2">分類</th>
                         <th class="border px-4 py-2">操作</th>
                     </tr>
                 </thead>
@@ -123,6 +112,9 @@
                             <td class="border px-4 py-2">
                                 <button class="edit-spending-btn bg-blue-500 text-white px-2 py-1 rounded">
                                     編集
+                                </button>
+                                <button class="delete-spending-btn bg-blue-500 text-white px-2 py-1 rounded">
+                                    削除
                                 </button>
                             </td>
                         </tr>
