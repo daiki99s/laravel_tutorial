@@ -100,6 +100,60 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const deleteSpendingBtns = document.querySelectorAll(
+        ".delete-spending-btn"
+    );
+    deleteSpendingBtns.forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            // 親 <tr>（spending-row）を探す
+            const tr = btn.closest("tr.spending-row");
+            if (!tr) return;
+
+            // data-id からID取得
+            const spendingId = tr.dataset.id;
+            if (!spendingId) return;
+
+            // 削除確認
+            if (!confirm("本当に削除しますか？")) {
+                return;
+            }
+
+            try {
+                // CSRFトークンを付けて DELETEリクエスト送信
+                await axios.delete(`/spendings/${spendingId}`);
+                alert("削除しました");
+                location.reload();
+            } catch (err) {
+                console.error("削除エラー:", err);
+                alert("削除に失敗しました");
+            }
+        });
+    });
+
+    const deleteIncomeBtns = document.querySelectorAll(".delete-income-btn");
+    deleteIncomeBtns.forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const tr = btn.closest("tr.income-row");
+            if (!tr) return;
+
+            const incomeId = tr.dataset.id;
+            if (!incomeId) return;
+
+            if (!confirm("本当に削除しますか？")) {
+                return;
+            }
+
+            try {
+                await axios.delete(`/incomes/${incomeId}`);
+                alert("削除しました");
+                location.reload();
+            } catch (err) {
+                console.error("削除エラー:", err);
+                alert("削除に失敗しました");
+            }
+        });
+    });
+
     // ◆ モーダル「閉じる」ボタン
     const closeModalBtn = document.getElementById("closeModalBtn");
     if (closeModalBtn) {
