@@ -1,28 +1,38 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;  // Authファサード
 use App\Models\Income;
 use App\Models\Type;
-use App\Models\User;
 use App\Models\IncomeCategory;
 
 class IncomeController extends Controller
 {
     /**
-     * 一覧表示
+     * 一覧表示 (ログインユーザーのみ)
      */
     public function index()
     {
-        // 「type」リレーションと「category」リレーションをまとめてロード
-        $incomes = Income::with(['type', 'category'])->get();
-        $types = Type::all();
-        $users = User::all();
+        // ログインユーザーID取得
+        $userId = Auth::id();
 
-        // すべての収入カテゴリを取得（カテゴリのプルダウンなどに使う想定）
+        // 「type」リレーションと「category」リレーションをまとめてロード
+        // かつ、ユーザーIDで絞り込み
+        $incomes = Income::with(['type', 'category'])
+                    ->where('user_id', $userId)
+                    ->get();
+
+        // 全タイプ & 全カテゴリを取得 (表示用)
+        $types = Type::all();
         $categories = IncomeCategory::all();
 
-        return view('incomes.index', compact('incomes', 'types', 'users', 'categories'));
+        // ユーザー一覧を使わないのであれば削除してOK
+        // もしadmin向け等で全ユーザーを扱うなら残す
+        // $users = User::all();
+
+        return view('incomes.index', compact('incomes', 'types', 'categories'));
     }
 
     /**
@@ -30,29 +40,31 @@ class IncomeController extends Controller
      */
     public function store(Request $request)
     {
-        // バリデーションルール
+        // バリデーションルール (user_idは受け取らない)
         $validated = $request->validate([
-            'date' => 'required|date', // 日付は必須かつ正しい日付形式
-            'amount' => 'required|numeric|min:0', // 金額は必須かつ0以上の数値
-            'comment' => 'nullable|string', // コメントは任意の文字列
-            'type_id' => 'required|exists:types,id', // type_idはtypesテーブルに存在するIDであること
-            'user_id' => 'required|exists:users,id', // user_idはusersテーブルに存在するIDであること
-            'category_id' => 'required|exists:income_categories,id', // category_idはincome_categoriesテーブルに存在するIDであること
+            'date' => 'required|date',
+            'amount' => 'required|numeric|min:0',
+            'comment' => 'nullable|string',
+            'type_id' => 'required|exists:types,id',
+            'category_id' => 'required|exists:income_categories,id',
         ]);
 
-        // レコード作成
+        // ログインユーザーIDを取得
+        $userId = Auth::id();
+
+        // レコード作成: user_idはサーバ側で強制セット
         $income = Income::create([
             'date' => $validated['date'],
             'amount' => $validated['amount'],
-            'comment' => $validated['comment'] ?? null, // コメントが空であればnull
+            'comment' => $validated['comment'] ?? null,
             'type_id' => $validated['type_id'],
-            'user_id' => $validated['user_id'],
             'category_id' => $validated['category_id'],
+            'user_id' => $userId,  // ログインユーザーを紐づけ
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => '収入を登録しました'
+            'message' => '収入を登録しました',
         ]);
     }
 
@@ -61,30 +73,46 @@ class IncomeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $income = Income::findOrFail($id);
+        // ログインユーザーIDを取得
+        $userId = Auth::id();
+
+        // 該当データを findOrFail
+        $income = Income::where('user_id', $userId)
+                    ->findOrFail($id);
+        // ↑ user_idが自分のもの限定にすることで
+        // 他人のIDを指定しても 404 が返る
 
         $validated = $request->validate([
             'date' => 'required|date',
             'amount' => 'required|numeric|min:0',
             'comment' => 'nullable|string',
             'type_id' => 'required|exists:types,id',
-            'user_id' => 'required|exists:users,id',
             'category_id' => 'required|exists:income_categories,id',
-        ]); // バリデーション
+        ]);
 
+        // user_idは受け取らず、既存のまま
+        // update
         $income->update($validated);
+
         return response()->json([
             'success' => true,
-            'message' => '収入を更新しました'
+            'message' => '収入を更新しました',
         ]);
     }
 
     /**
-     * 削除 (destroy)
+     * 削除 (destroy) - ソフトデリート
      */
     public function destroy($id)
     {
-        $income = Income::findOrFail($id);
+        // ログインユーザーIDを取得
+        $userId = Auth::id();
+
+        // 自分のデータのみを検索
+        $income = Income::where('user_id', $userId)
+                    ->findOrFail($id);
+
+        // 論理削除 (ソフトデリート)
         $income->delete();
 
         return response()->json([

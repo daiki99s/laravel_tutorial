@@ -9,23 +9,43 @@ use App\Models\Type;
 use App\Models\User;
 use App\Models\IncomeCategory;
 use App\Models\SpendingCategory;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        // 収入、支出、タイプ、ユーザーを取得
-        $incomes = Income::with(['type','category'])->get();
-        $spendings = Spending::with(['type','category'])->get();
-        $types = Type::all();
-        $users = User::all();
+        // ログインユーザーID
+        $userId = Auth::id();
 
-        // それぞれのカテゴリを別の変数に取得
+        // ログインユーザーの収入だけ取得
+        $incomes = Income::with(['type', 'category'])
+                    ->where('user_id', $userId)
+                    ->get();
+
+        // ログインユーザーの支出だけ取得
+        $spendings = Spending::with(['type', 'category'])
+                    ->where('user_id', $userId)
+                    ->get();
+
+        // すべての Type (収入 or 支出タイプ)
+        $types = Type::all();
+
+        // すべてのカテゴリ (収入カテゴリ / 支出カテゴリ)
         $incomeCategories = IncomeCategory::all();
         $spendingCategories = SpendingCategory::all();
 
-        // Blade に渡す
-        return view('home', compact('incomes', 'spendings', 'types', 'users', 'incomeCategories', 'spendingCategories'));
-    }
+        // 必要ならユーザー一覧を取得（管理者向けなど）
+        // $users = User::all();
+        // ただし通常ユーザーには不要かもしれません
 
+        // Blade に渡す
+        return view('home', compact(
+            'incomes',
+            'spendings',
+            'types',
+            'incomeCategories',
+            'spendingCategories'
+        ));
+    }
 }

@@ -140,9 +140,8 @@
                 <input type="hidden" name="type_id" id="type_id" value="">
 
                 <!-- user_id (例: 全ユーザーのうち最初のものを割り当て？) -->
-                @foreach ($users as $user)
-                    <input type="hidden" name="user_id" id="user_id" value="{{ $user->id }}">
-                @endforeach
+
+                    <input type="hidden" name="user_id" id="user_id" value="{{ Auth::user()->id }}">
 
                 <!-- 収入カテゴリ select -->
                 <select id="incomeCategory" name="category_id" class="mb-4">
